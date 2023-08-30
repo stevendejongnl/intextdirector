@@ -1,17 +1,31 @@
 import argparse
 import http.server
-import socket
 import socketserver
 import urllib.parse
+from typing import Optional
 
 import requests
 
 
-def is_internal_request(response, local_ip, extern_url):
-    if response.status_code == 200:
-        external_ip = urllib.parse.urlparse(extern_url).hostname
-        return local_ip == external_ip
-    return False
+def is_internal_reachable(intern_url: str) -> bool:
+    try:
+        response = requests.get(intern_url, timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+
+
+def determine_redirect_url(intern_url: str, extern_url: str, debug: Optional[str]) -> str:
+    internal_reachable = is_internal_reachable(intern_url)
+
+    if debug:
+        print(f"Debug mode: internal={intern_url}, external={extern_url}, internal_reachable={internal_reachable}")
+        return intern_url
+
+    if internal_reachable:
+        return intern_url
+    else:
+        return extern_url
 
 
 class NetworkRedirectHandler(http.server.SimpleHTTPRequestHandler):
@@ -23,15 +37,12 @@ class NetworkRedirectHandler(http.server.SimpleHTTPRequestHandler):
 
         intern_url = query_params['intern'][0]
         extern_url = query_params['extern'][0]
-        redirect_url = extern_url
 
-        local_ip = socket.gethostbyname(socket.gethostname())
+        debug = query_params.get('debug', [''])[0]
+        redirect_url = determine_redirect_url(intern_url, extern_url, debug)
 
-        response = requests.get(intern_url)
-        if is_internal_request(response, local_ip, extern_url):
-            redirect_url = intern_url
-
-        self.send_redirect_response(redirect_url)
+        if not debug:
+            self.send_redirect_response(redirect_url)
 
     def send_bad_request_response(self):
         self.send_response(400)
@@ -39,7 +50,7 @@ class NetworkRedirectHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"Provide both 'intern' and 'extern' query parameters.")
 
-    def send_redirect_response(self, redirect_url):
+    def send_redirect_response(self, redirect_url: str):
         self.send_response(302)
         self.send_header('Location', redirect_url)
         self.end_headers()

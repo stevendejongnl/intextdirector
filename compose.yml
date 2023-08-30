@@ -9,3 +9,4 @@ services:
     volumes:
       - ./app.py:/app/app.py
       - ./requirements.txt:/app/requirements.txt
+    command: [ "python", "-u", "app.py" ]
