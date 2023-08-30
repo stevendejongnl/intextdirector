@@ -1,1 +1,2 @@
 requests==2.31.0
+whatsmyip==0.1.4

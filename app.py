@@ -1,13 +1,25 @@
+from __future__ import annotations
+
 import argparse
 import http.server
+import os
 import socketserver
 import urllib.parse
 from typing import Optional
 
 import requests
+from whatsmyip.ip import get_ip
+from whatsmyip.providers import HttpbinProvider
 
 
 def is_internal_reachable(intern_url: str) -> bool:
+    network_ip = os.environ.get('NETWORK_IP')
+    ip = get_ip(HttpbinProvider)
+
+    print(ip, network_ip)
+    if not ip == network_ip:
+        return False
+
     try:
         response = requests.get(intern_url, timeout=5)
         return response.status_code == 200
