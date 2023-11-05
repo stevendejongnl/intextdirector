@@ -1,2 +1,4 @@
 .idea
 compose.override.yml
+dist
+node_modules

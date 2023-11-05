@@ -4,11 +4,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - NETWORK_IP=0.0.0.0
     ports:
       - "8080:8080"
     volumes:
+      - ./dist:/app/dist
+      - ./index.html:/app/index.html
       - ./app.py:/app/app.py
       - ./requirements.txt:/app/requirements.txt
     command: [ "python", "-u", "app.py" ]

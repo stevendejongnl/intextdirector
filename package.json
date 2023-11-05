@@ -1,0 +1,14 @@
+{
+  "name": "intextdirector",
+  "version": "1.0.0",
+  "description": "This is a simple web application that checks whether a request originates from an internal or external network. It allows you to specify both internal and external URLs and redirects based on the network source.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.2.2"
+  }
+}
