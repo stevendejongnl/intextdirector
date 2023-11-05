@@ -21,55 +21,36 @@ function updateTimeoutCounter(milliseconds: number): void {
   timeoutElement.textContent = `Checking internal access: ${seconds} seconds`
 }
 
-async function checkInternalAccess(url: string): Promise<boolean> {
+async function checkInternalAccess(url: string, timeout: number): Promise<boolean> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+
   try {
-    const response = await fetch(url, { method: 'HEAD' })
+    const response = await fetch(url, { method: 'HEAD', signal: controller.signal })
+    clearTimeout(timeoutId)
     return response.ok
   } catch (error) {
+    clearTimeout(timeoutId)
     return false
   }
 }
 
 async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   const timeoutElement = document.querySelector('.timeout')
-  const startTime = Date.now()
 
   try {
-    const isInternalAccessible = await checkInternalAccess(options.internalURL)
-    const elapsedTime = Date.now() - startTime
-    const remainingTime = options.timeout - elapsedTime
+    const isInternalAccessible = await checkInternalAccess(options.internalURL, options.timeout)
 
     if (isInternalAccessible) {
-      if (options.debug) {
-        console.log(`Internal access is okay, redirecting to ${options.internalURL}`)
-        timeoutElement.remove()
-      }
-
-      if (remainingTime > 0) {
-        setTimeout(() => {
-          window.location.href = options.internalURL
-        }, remainingTime)
-      } else {
-        window.location.href = options.internalURL
-      }
+      timeoutElement.remove()
+      window.location.href = options.internalURL
     } else {
-      if (options.debug) {
-        console.log(`Internal access is not okay, redirecting to ${options.externalURL}`)
-        timeoutElement.remove()
-      }
-
-      if (remainingTime > 0) {
-        setTimeout(() => {
-          window.location.href = options.externalURL
-        }, remainingTime)
-      } else {
-        window.location.href = options.externalURL
-      }
+      throw new Error('Internal access check failed')
     }
   } catch (error) {
     console.error(`Error caught: ${error.message}`)
     timeoutElement.remove()
-    window.location.href = options.externalURL
+    window.location.href = options.internalURL
   }
 }
 
@@ -86,7 +67,7 @@ function initRedirect(): void {
 
   if (!internalURL || !externalURL) {
     showError('Internal and external URLs are required.')
-    return;
+    return
   }
 
   updateTimeoutCounter(timeout)
