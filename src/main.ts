@@ -53,7 +53,7 @@ async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   } catch (error) {
     console.error(`Error caught: ${error.message}`)
     timeoutElement.remove()
-    window.location.href = options.internalURL
+    window.location.href = options.externalURL
   }
 }
 
