@@ -7,12 +7,20 @@ COPY package-lock.json .
 
 RUN npm install
 
+ENV INTERNAL_CHECK_URL=http://localhost:8080/api/health
+
 COPY . .
+
+RUN sed '/const INTERNAL_CHECK_URL/d' /app/src/main.ts > /app/src/main.tmp && \
+    mv /app/src/main.tmp /app/src/main.ts && \
+    echo "const INTERNAL_CHECK_URL = '${INTERNAL_CHECK_URL}';" > /app/src/env.ts && \
+    cat /app/src/main.ts >> /app/src/env.ts && \
+    mv /app/src/env.ts /app/src/main.ts
 
 RUN npm run build
 
 
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 

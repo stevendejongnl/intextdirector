@@ -1,3 +1,5 @@
+const INTERNAL_CHECK_URL = 'http://localhost:8080/api/health'
+
 type RedirectOptions = {
   internalURL: string;
   externalURL: string;
@@ -21,14 +23,15 @@ function updateTimeoutCounter(milliseconds: number): void {
   timeoutElement.textContent = `Checking internal access: ${seconds} seconds`
 }
 
-async function checkInternalAccess(url: string, timeout: number): Promise<boolean> {
+async function checkInternalAccess(timeout: number): Promise<boolean> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
 
   try {
-    const response = await fetch(url, { method: 'HEAD', signal: controller.signal })
+    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal })
     clearTimeout(timeoutId)
-    return response.ok
+    const data = await response.json()
+    return data.status === 'ok'
   } catch (error) {
     clearTimeout(timeoutId)
     return false
@@ -39,7 +42,7 @@ async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   const timeoutElement = document.querySelector('.timeout')
 
   try {
-    const isInternalAccessible = await checkInternalAccess(options.internalURL, options.timeout)
+    const isInternalAccessible = await checkInternalAccess(options.timeout)
 
     if (isInternalAccessible) {
       timeoutElement.remove()
