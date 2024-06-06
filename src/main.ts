@@ -62,7 +62,7 @@ function initRedirect(): void {
   const internalURL = urlParams.get('intern')
   const externalURL = urlParams.get('extern')
   const debug = urlParams.get('debug') === 'true' || false
-  const timeout = parseInt(urlParams.get('timeout') || '15000', 10)
+  const timeout = parseInt(urlParams.get('timeout') || '5000', 10)
 
   if (debug) {
     showDebugMode()
