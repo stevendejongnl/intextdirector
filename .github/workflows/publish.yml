@@ -18,7 +18,7 @@ jobs:
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --build-arg INTERNAL_CHECK_URL=${{ secrets.INTERNAL_CHECK_URL }} -t ghcr.io/${{ github.repository }}:latest .
+      run: docker buildx build --build-arg INTERNAL_CHECK_URL=${{ secrets.INTERNAL_CHECK_URL }} -t ghcr.io/${{ github.repository }}:latest .
 
     - name: Push Docker image
       run: docker push ghcr.io/${{ github.repository }}:latest
