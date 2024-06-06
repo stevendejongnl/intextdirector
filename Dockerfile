@@ -7,7 +7,8 @@ COPY package-lock.json .
 
 RUN npm install
 
-ENV INTERNAL_CHECK_URL=http://localhost:8080/api/health
+ARG INTERNAL_CHECK_URL
+ENV INTERNAL_CHECK_URL=${INTERNAL_CHECK_URL}
 
 COPY . .
 
