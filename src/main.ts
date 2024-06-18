@@ -1,3 +1,6 @@
+import https from 'https'
+
+
 const INTERNAL_CHECK_URL = 'http://localhost:8080/api/health'
 
 type RedirectOptions = {
@@ -28,7 +31,7 @@ async function checkInternalAccess(timeout: number): Promise<boolean> {
   const timeoutId = setTimeout(() => controller.abort(), timeout)
 
   try {
-    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal })
+    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal, agent: new https.Agent({ rejectUnauthorized: false }) })
     clearTimeout(timeoutId)
     const data = await response.json()
     return data.status === 'ok'
