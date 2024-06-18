@@ -1,5 +1,4 @@
-import { * as https } from 'https'
-
+import { Agent, setGlobalDispatcher } from 'undici'
 
 const INTERNAL_CHECK_URL = 'http://localhost:8080/api/health'
 
@@ -29,9 +28,15 @@ function updateTimeoutCounter(milliseconds: number): void {
 async function checkInternalAccess(timeout: number): Promise<boolean> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
+  const agent = new Agent({
+    connect: {
+      rejectUnauthorized: false,
+    }
+  })
+  setGlobalDispatcher(agent)
 
   try {
-    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal, agent: new https.Agent({ rejectUnauthorized: false }) })
+    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal })
     clearTimeout(timeoutId)
     const data = await response.json()
     return data.status === 'ok'
