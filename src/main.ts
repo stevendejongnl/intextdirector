@@ -1,4 +1,4 @@
-import https from 'https'
+import { * as https } from 'https'
 
 
 const INTERNAL_CHECK_URL = 'http://localhost:8080/api/health'
