@@ -65,12 +65,19 @@ async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   }
 }
 
+function redirectingInfo(internalURL: string, externalURL: string): void {
+  const heading = document.querySelector('h1')
+  heading.textContent = `Redirecting to <a href="${internalURL}">${internalURL}</a> in case of success, otherwise to <a href="${externalURL}">${externalURL}</a>`
+}
+
 function initRedirect(): void {
   const urlParams = new URLSearchParams(window.location.search)
   const internalURL = urlParams.get('intern')
   const externalURL = urlParams.get('extern')
   const debug = urlParams.get('debug') === 'true' || false
   const timeout = parseInt(urlParams.get('timeout') || '5000', 10)
+
+  redirectingInfo(internalURL, externalURL)
 
   if (debug) {
     showDebugMode()
