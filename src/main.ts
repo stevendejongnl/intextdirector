@@ -1,6 +1,4 @@
-import { Agent, setGlobalDispatcher } from 'undici'
-
-const INTERNAL_CHECK_URL = 'http://localhost:8080/api/health'
+const INTERNAL_CHECK_URL = 'https://localhost:8080/api/health'
 
 type RedirectOptions = {
   internalURL: string;
@@ -28,13 +26,6 @@ function updateTimeoutCounter(milliseconds: number): void {
 async function checkInternalAccess(timeout: number): Promise<boolean> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
-  const agent = new Agent({
-    connect: {
-      rejectUnauthorized: false,
-    }
-  })
-  setGlobalDispatcher(agent)
-
   try {
     const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal })
     clearTimeout(timeoutId)
@@ -67,7 +58,7 @@ async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
 
 function redirectingInfo(internalURL: string, externalURL: string): void {
   const heading = document.querySelector('h1')
-  heading.textContent = `Redirecting to <a href="${internalURL}">${internalURL}</a> in case of success, otherwise to <a href="${externalURL}">${externalURL}</a>`
+  heading.innerHTML = `Redirecting to <a href="${internalURL}">${internalURL}</a> in case of success, otherwise to <a href="${externalURL}">${externalURL}</a>`
 }
 
 function initRedirect(): void {
