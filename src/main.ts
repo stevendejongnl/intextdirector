@@ -37,14 +37,44 @@ async function checkInternalAccess(timeout: number): Promise<boolean> {
   }
 }
 
+function setCookie(value: string): void {
+  document.cookie = `internal-access=${value}; max-age=3600`
+}
+
+function getCookie(): string | null {
+  document.cookie.split(';').forEach((cookie) => {
+    const [name, value] = cookie.split('=')
+    if (name.trim() === 'internal-access') {
+      return value
+    }
+  })
+
+  return null
+}
+
 async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   const timeoutElement = document.querySelector('.timeout')
+
+  const internalAccess = getCookie()
+  if (internalAccess === 'ok') {
+    timeoutElement.remove()
+    window.location.href = options.internalURL
+    return
+  }
+
+  if (internalAccess === 'external') {
+    timeoutElement.remove()
+    window.location.href = options.externalURL
+    return
+  }
 
   try {
     const isInternalAccessible = await checkInternalAccess(options.timeout)
 
     if (isInternalAccessible) {
       timeoutElement.remove()
+
+      setCookie('ok')
       window.location.href = options.internalURL
     } else {
       throw new Error('Internal access check failed')
@@ -52,6 +82,8 @@ async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   } catch (error) {
     console.error(`Error caught: ${error.message}`)
     timeoutElement.remove()
+
+    setCookie('external')
     window.location.href = options.externalURL
   }
 }
