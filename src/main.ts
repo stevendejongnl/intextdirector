@@ -55,19 +55,6 @@ function getCookie(): string | null {
 async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
   const timeoutElement = document.querySelector('.timeout')
 
-  const internalAccess = getCookie()
-  if (internalAccess === 'ok') {
-    timeoutElement.remove()
-    window.location.href = options.internalURL
-    return
-  }
-
-  if (internalAccess === 'external') {
-    timeoutElement.remove()
-    window.location.href = options.externalURL
-    return
-  }
-
   try {
     const isInternalAccessible = await checkInternalAccess(options.timeout)
 
@@ -108,6 +95,17 @@ function initRedirect(): void {
 
   if (!internalURL || !externalURL) {
     showError('Internal and external URLs are required.')
+    return
+  }
+
+  const internalAccess = getCookie()
+  if (internalAccess === 'ok') {
+    window.location.href = internalURL
+    return
+  }
+
+  if (internalAccess === 'external') {
+    window.location.href = externalURL
     return
   }
 
