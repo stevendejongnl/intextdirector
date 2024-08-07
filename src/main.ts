@@ -1,116 +1,39 @@
-const INTERNAL_CHECK_URL = 'https://localhost:8080/api/health'
+import { getEnvironment } from './helpers/testing.js'
 
-type RedirectOptions = {
-  internalURL: string;
-  externalURL: string;
-  debug: boolean;
-  timeout?: number;
-};
+export const loadingSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><radialGradient id="a12" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="#FF156D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6d006d;"></stop><stop offset=".3" stop-color="#FF156D" stop-opacity=".9" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6d006d;"></stop><stop offset=".6" stop-color="#FF156D" stop-opacity=".6" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6d006d;"></stop><stop offset=".8" stop-color="#FF156D" stop-opacity=".3" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6d006d;"></stop><stop offset="1" stop-color="#FF156D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6d006d;"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a12)" stroke-width="15" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="#FF156D" stroke-width="15" stroke-linecap="round" cx="100" cy="100" r="70" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke: #ff6dff;"></circle></svg>`
 
-function showDebugMode(): void {
-  const debugElement = document.querySelector('.debug')
-  debugElement.textContent = 'Debug mode active'
+export function renderLoading(): void {
+  const app = document.querySelector('#app')
+  app.innerHTML = loadingSvg
 }
 
-function showError(message: string): void {
-  const errorElement = document.querySelector('.error')
-  errorElement.textContent = message
-}
-
-function updateTimeoutCounter(milliseconds: number): void {
-  const timeoutElement = document.querySelector('.timeout')
-  const seconds = Math.ceil(milliseconds / 1000)
-  timeoutElement.textContent = `Checking internal access: ${seconds} seconds`
-}
-
-async function checkInternalAccess(timeout: number): Promise<boolean> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeout)
-  try {
-    const response = await fetch(INTERNAL_CHECK_URL, { method: 'GET', signal: controller.signal })
-    clearTimeout(timeoutId)
-    const data = await response.json()
-    return data.status === 'ok'
-  } catch (error) {
-    clearTimeout(timeoutId)
-    return false
-  }
-}
-
-function setCookie(value: string): void {
-  document.cookie = `internal-access=${value}; max-age=3600`
-}
-
-function getCookie(): string | null {
-  document.cookie.split(';').forEach((cookie) => {
-    const [name, value] = cookie.split('=')
-    if (name.trim() === 'internal-access') {
-      return value
-    }
-  })
-
-  return null
-}
-
-async function startTimeoutCounter(options: RedirectOptions): Promise<void> {
-  const timeoutElement = document.querySelector('.timeout')
-
-  try {
-    const isInternalAccessible = await checkInternalAccess(options.timeout)
-
-    if (isInternalAccessible) {
-      timeoutElement.remove()
-
-      setCookie('ok')
-      window.location.href = options.internalURL
-    } else {
-      throw new Error('Internal access check failed')
-    }
-  } catch (error) {
-    console.error(`Error caught: ${error.message}`)
-    timeoutElement.remove()
-
-    setCookie('external')
-    window.location.href = options.externalURL
-  }
-}
-
-function redirectingInfo(internalURL: string, externalURL: string): void {
-  const heading = document.querySelector('h1')
-  heading.innerHTML = `Redirecting to <a href="${internalURL}">${internalURL}</a> in case of success, otherwise to <a href="${externalURL}">${externalURL}</a>`
-}
-
-function initRedirect(): void {
+export function getUrl(url_type: string): string {
   const urlParams = new URLSearchParams(window.location.search)
-  const internalURL = urlParams.get('intern')
-  const externalURL = urlParams.get('extern')
-  const debug = urlParams.get('debug') === 'true' || false
-  const timeout = parseInt(urlParams.get('timeout') || '5000', 10)
+  let url = null
 
-  redirectingInfo(internalURL, externalURL)
-
-  if (debug) {
-    showDebugMode()
+  if (getEnvironment() === 'test' && url_type === 'internal') {
+    url = 'http://fake-internal.url'
+  }
+  if (getEnvironment() === 'test' && url_type === 'external') {
+    url = 'http://fake-external.url'
   }
 
-  if (!internalURL || !externalURL) {
-    showError('Internal and external URLs are required.')
-    return
+  if (getEnvironment() !== 'test' && url_type === 'internal') {
+    url = urlParams.get('intern') || urlParams.get('internal')
+  }
+  if (getEnvironment() !== 'test' && url_type === 'external') {
+    url = urlParams.get('extern') || urlParams.get('external')
   }
 
-  const internalAccess = getCookie()
-  if (internalAccess === 'ok') {
-    window.location.href = internalURL
-    return
+  if (url === null) {
+    throw new Error(`${url_type} URL not provided`)
   }
 
-  if (internalAccess === 'external') {
-    window.location.href = externalURL
-    return
-  }
-
-  updateTimeoutCounter(timeout)
-  startTimeoutCounter({ internalURL, externalURL, debug, timeout })
+  return url
 }
 
-window.onload = initRedirect
+export function initializeApp(): void {
+  renderLoading()
+}
+
+initializeApp()
