@@ -62,6 +62,13 @@ export const fixture = (html: string = fixtureHtml) => {
   document.body.innerHTML = html
 }
 
+export const clearCookies = () => {
+  document.cookie.split(';').forEach((cookie) => {
+    const [name] = cookie.split('=')
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`
+  })
+}
+
 // Important, set the DOM before anything else
 setDOM()
 
@@ -69,6 +76,7 @@ export const mochaHooks: Mocha.RootHookObject = {
   beforeAll(done: Mocha.Done) {
     setEnvironment('test')
     setFakeData({}, true)
+    clearCookies()
 
     done()
   },
@@ -76,6 +84,7 @@ export const mochaHooks: Mocha.RootHookObject = {
     fixture()
     setEnvironment('test')
     setFakeData({}, true)
+    clearCookies()
 
     done()
   },

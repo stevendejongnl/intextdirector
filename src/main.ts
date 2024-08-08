@@ -32,6 +32,25 @@ export function getUrl(url_type: string): string {
   return url
 }
 
+type CookieValue = 'internal' | 'external'
+
+export function setCookie(value: CookieValue): void {
+  document.cookie = `access-type=${value}; max-age=3600`
+}
+
+export function getCookie(): CookieValue {
+  let cookieValue: CookieValue = 'external'
+
+  document.cookie.split(';').forEach((cookie) => {
+    const [name, value] = cookie.split('=')
+    if (name.trim() === 'access-type') {
+      cookieValue = value.trim() as CookieValue
+    }
+  })
+
+  return cookieValue
+}
+
 export function initializeApp(): void {
   renderLoading()
 }

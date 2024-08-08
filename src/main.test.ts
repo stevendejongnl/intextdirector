@@ -1,5 +1,5 @@
 import { assert } from 'chai'
-import { getUrl, loadingSvg, renderLoading } from './main.js'
+import { getCookie, getUrl, loadingSvg, renderLoading, setCookie } from './main.js'
 
 
 describe('main', () => {
@@ -19,5 +19,21 @@ describe('main', () => {
   it('should get external url from arguments', () => {
     const internal_url = getUrl('external')
     assert.equal(internal_url, 'http://fake-external.url')
+  })
+
+  it('should be possible to set a internal cookie', () => {
+    setCookie('internal')
+
+    assert.equal(getCookie(), 'internal')
+  })
+
+  it('should be possible to set a external cookie', () => {
+    setCookie('external')
+
+    assert.equal(getCookie(), 'external')
+  })
+
+  it('should be possible to get a value when not setting a cookie', () => {
+    assert.equal(getCookie(), 'external')
   })
 })
