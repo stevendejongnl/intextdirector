@@ -18,7 +18,7 @@ RUN sed '/const INTERNAL_CHECK_URL/d' /app/src/main.ts > /app/src/main.tmp && \
     cat /app/src/main.ts >> /app/src/env.ts && \
     mv /app/src/env.ts /app/src/main.ts
 
-RUN npm run build
+RUN npm run bundle
 
 
 FROM python:3.12-slim
@@ -26,6 +26,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY --from=node-build /app/dist ./dist
+COPY --from=node-build /app/bundle ./bundle
 COPY index.html .
 COPY app.py .
 COPY requirements.txt .
