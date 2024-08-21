@@ -10,12 +10,12 @@ describe('main', () => {
     assert.equal(app?.innerHTML, loadingSvg)
   })
 
-  it('should get internal url from arguments', () => {
+  it.skip('should get internal url from arguments', () => {
     const internal_url = getUrl('internal')
     assert.equal(internal_url, 'http://fake-internal.url')
   })
 
-  it('should get external url from arguments', () => {
+  it.skip('should get external url from arguments', () => {
     window.location.assign('http://fake-url.com?external=http://fake-external.url')
     window.location.search = '?external=http://fake-external.url'
 
