@@ -168,7 +168,7 @@ export function renderInformation(
 }
 
 export function redirectTo(url: string): void {
-  let urlParams = new URLSearchParams(window.location.search)
+  const urlParams = new URLSearchParams(window.location.search)
   const debug = urlParams.get('debug')
   if (debug) {
     console.log('Debug mode enabled')

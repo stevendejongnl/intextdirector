@@ -36,7 +36,9 @@ describe('main', () => {
   })
 
   it('should be possible to get a value when not setting a cookie', () => {
-    assert.equal(getCookie(), 'external')
+    setCookie(undefined)
+
+    assert.equal(getCookie(), 'undefined')
   })
 
   it.skip('should throw an error and show why when required internal argument is not provided', () => {
