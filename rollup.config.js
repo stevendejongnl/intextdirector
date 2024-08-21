@@ -1,21 +1,18 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import typescript from '@rollup/plugin-typescript'
+import dotenv from 'dotenv';
+import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+
+dotenv.config();
 
 export default {
-  input: 'src/main.ts',
+  input: 'dist/main.js',
   output: {
-    dir: 'dist',
-    format: 'iife',
+    file: 'bundle/main.js',
     name: 'IntExtDirector',
+    format: 'iife',
   },
   plugins: [
-    resolve(),
-    commonjs(),
-    typescript(
-      {
-        tsconfig: 'tsconfig.json',
-      },
-    ),
-  ],
-}
+    injectProcessEnv(process.env),
+    nodeResolve(),
+  ]
+};

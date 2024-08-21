@@ -1,4 +1,5 @@
 .idea
 compose.override.yml
 dist
+bundle
 node_modules

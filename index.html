@@ -4,12 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Network Redirect</title>
-    <script src="dist/main.js" type="module" defer></script>
+    <script src="bundle/main.js" type="module" defer></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #181a1b;
+            color: #2d142d;
+            display: grid;
+            place-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+        #app {
+            display: grid;
+            place-items: center;
+            max-height: 100vh;
+            height: 100vh;
+            max-width: 100vw;
+            width: 100vw;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        #app > * {
+            max-height: 100%;
+            max-width: 100%;
+            height: auto;
+            width: auto;
+        }
+
+        section#content {
+          position: absolute;
+          color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Redirecting...</h1>
-    <div class="timeout"></div>
-    <div class="debug"></div>
-    <div class="error"></div>
+    <div id="app">Redirecting ...</div>
 </body>
 </html>
