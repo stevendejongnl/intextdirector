@@ -6,6 +6,11 @@ export function renderLoading(app: Element): void {
   app.innerHTML = loadingSvg
 }
 
+export function debugMode(): boolean {
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.has('debug')
+}
+
 export function getUrl(url_type: string): string {
   let urlParams = new URLSearchParams(window.location.search)
   let url = null
@@ -168,8 +173,7 @@ export function renderInformation(
 }
 
 export function redirectTo(url: string): void {
-  const urlParams = new URLSearchParams(window.location.search)
-  const debug = urlParams.get('debug')
+  const debug = debugMode()
   if (debug) {
     console.log('Debug mode enabled')
     console.log(`Redirecting to ${url}`)
